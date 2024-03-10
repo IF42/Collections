@@ -1,0 +1,5 @@
+.cache/test.o: test/test.c test/../src/container.h test/../src/vector.h \
+ test/../src/list.h
+.cache/list.o: src/list.c src/list.h
+.cache/map.o: src/map.c src/map.h
+.cache/vector.o: src/vector.c src/vector.h
