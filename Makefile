@@ -1,16 +1,27 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -pedantic -Ofast
-LIBS= -lthr 
+LIBS= -lthr -lalloc
 
 
-INCLUDE_PATH=/usr/include/
-LIB_PATH=/usr/lib64/
+INCLUDE_PATH=
+LIB_PATH=
+
+
+ifeq ($(UNAME), Linux)	
+	INCLUDE_PATH+=/usr/include/
+	LIB_PATH+=/usr/lib64/
+else
+	INCLUDE_PATH+=/usr/include/
+	LIB_PATH+=/usr/lib/
+endif
+
 
 TARGET=libcontainer.a
 CACHE=.cache
 OUTPUT=$(CACHE)/release
 
 MODULES += vector.o
+MODULES += dynarr.o
 MODULES += list.o
 MODULES += map.o
 TEST += test.o
@@ -49,8 +60,7 @@ env:
 
 install:
 	cp -v $(OUTPUT)/$(TARGET) $(LIB_PATH)/$(TARGET)
-	mkdir -pv $(INCLUDE_PATH)/container
-	cp -v src/*.h $(INCLUDE_PATH)/container
+	cp -vr src/container $(INCLUDE_PATH)
 
 clean: 
 	rm -rvf $(OUTPUT)

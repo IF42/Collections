@@ -1,60 +1,117 @@
-#include "list.h"
+#include "container/list.h"
 
 #include <string.h>
 #include <stdlib.h>
 
 
+typedef struct node {
+    struct node * tail;
+}node;
+
+
 struct list {
-    void * value;
-    list * next;  
+    Alloc * alloc;
+    size_t dtype;
+
+    size_t size;
+    node * front;
+    node * back;
 };
 
 
-list * list_append(list * self, size_t dtype, void * value) {
-    list * node = malloc(sizeof(list));
+list * list_new(Alloc * alloc, size_t dtype) {
+    list * self = new(alloc, sizeof(list));
 
-    *node = (list) {
-        .value =  memcpy(malloc(dtype), value, dtype)
-        , .next = self
+    *self = (list) {
+        .alloc = alloc
+        , .dtype = dtype
     };
 
-    return node;    
+    return self;
 }
 
 
-void * list_peek(list * self) {
-    return self->value;
+void list_push_front(list * self, void * value) {
+    node * list_node = new(self->alloc, sizeof(node) + self->dtype);
+    memcpy((list_node + 1), value, self->dtype);
+
+    list_node->tail = self->front;
+    self->front = list_node;
+
+    self->size++;
+
+    if(self->back == NULL) {
+        self->back = list_node;
+    } 
 }
 
 
-list * list_next(list * self) {
-    return self->next;
+void list_push_back(list * self, void * value) {
+    node * list_node = new(self->alloc, sizeof(node) + self->dtype);
+    memcpy((list_node + 1), value, self->dtype);
+
+    if(self->back != NULL) {
+        self->back->tail = list_node;
+    }
+
+    self->back = list_node;
+
+    self->size++;
+
+    if(self->front == NULL) {
+        self->front = list_node;
+    }
+}
+
+
+void * list_get(list * self, size_t index) {
+    if(index < self->size) {
+        node * list_node = self->front;
+
+        for(size_t i = 0; i < index; i++) {
+            if(list_node != NULL) {
+                list_node = list_node->tail;
+            } else {
+                break;
+            }
+        }
+
+        return (list_node + 1);
+    } else {
+        return NULL;
+    }
+}
+
+
+static void * list_iterator_next(list_iter * iterator) {
+    if(iterator->head != NULL) {
+        void * data = (void*) (((node*) iterator->head) + 1); 
+        iterator->head = ((node*) iterator->head)->tail;
+        return data;
+    } else {
+        return NULL;
+    }
+}
+
+
+list_iter list_iterator(list * self) {
+    return (list_iter) {
+        .iter.next = (void*(*)(iterator *)) list_iterator_next 
+        , .head = self->front
+    };
 }
 
 
 size_t list_size(list * self) {
-    size_t size = 0; 
+    return self->size;
+}
 
-    while(self != NULL) {
-        size++;
-        self = self->next;
+
+
+
+void list_finalize(list * self) {
+    if(self != NULL) {
+        finalize(self->alloc);
     }
-
-    return size;
 }
-
-
-void list_delete(list * self) {
-    while(self != NULL) {
-        list * next = self->next;
-
-        if(self->value != NULL)
-            free(self->value);
-
-        free(self);
-        self = next;
-    }    
-}
-
-
 
