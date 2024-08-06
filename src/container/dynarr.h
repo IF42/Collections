@@ -1,6 +1,6 @@
 /** 
  * @file dynarr.h
- *
+ * @brief
  */
 
 #ifndef _DYNARR_H_
@@ -22,22 +22,25 @@ dynarr * dynarr_new(Alloc * alloc, size_t dtype);
 /** 
  * @brief
  */
-dynarr * dynarr_new_empty(Alloc * alloc, size_t dtype, size_t size);
+dynarr * dynarr_empty_new(Alloc * alloc, size_t dtype, size_t size);
 
 
 /*
  * @brief
  */
-dynarr * dynarr_new_from_array(Alloc * alloc, size_t dtype, size_t size, void * array);
+dynarr * dynarr_from_array(Alloc * alloc, size_t dtype, size_t size, void * array);
 
 
 #include "iter.h"
 
-
+/**
+ * @brief
+ */
 typedef struct {
     iterator iter;
     size_t dtype;
     size_t size;
+    size_t capacity;
     size_t index;
     void * head;
 }dynarr_iter;
@@ -47,7 +50,6 @@ typedef struct {
  * @brief
  */
 dynarr_iter dynarr_iterator(dynarr * self);
-
 
 
 /**
@@ -65,7 +67,13 @@ bool dynarr_set(dynarr * self, size_t index, void * value);
 /**
  * @brief
  */
-void dynarr_push(dynarr * self, void * value);
+void dynarr_push_front(dynarr * self, void * value);
+
+
+/**
+ * @brief
+ */
+void dynarr_push_back(dynarr * self, void * value);
 
 
 /**
@@ -77,13 +85,19 @@ bool dynarr_insert(dynarr * self, size_t index, void * value);
 /**
  * @brief
  */
-void dynarr_round(dynarr * self);
+void dynarr_delete(dynarr * self, size_t index);
 
 
 /**
  * @brief
  */
 size_t dynarr_size(dynarr * self);
+
+
+/**
+ * @brief
+ */
+bool dynarr_empty(dynarr * self);
 
 
 /**
@@ -95,13 +109,7 @@ void dynarr_clear(dynarr * self);
 /**
  * @brief
  */
-const void * dynarr_array(dynarr * self);
-
-
-/**
- * @brief
- */
-void * dynarr_to_array(dynarr * self);
+void * dynarr_to_c_array(dynarr * self);
 
 
 /**
@@ -117,3 +125,6 @@ void dynarr_finalize(dynarr * self);
 
 
 #endif
+
+
+

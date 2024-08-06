@@ -1,6 +1,11 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -pedantic -Ofast
-LIBS= -lthr -lalloc
+
+LIBS += -lthr 
+LIBS +=-lalloc
+
+
+
 
 
 INCLUDE_PATH=
@@ -22,6 +27,7 @@ OUTPUT=$(CACHE)/release
 
 MODULES += vector.o
 MODULES += dynarr.o
+MODULES += queue.o
 MODULES += list.o
 MODULES += map.o
 TEST += test.o

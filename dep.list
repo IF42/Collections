@@ -1,6 +1,10 @@
-.cache/test.o: test/test.c test/../src/container/vector.h \
- test/../src/container/list.h
-.cache/dynarr.o: src/dynarr.c src/container/dynarr.h
-.cache/list.o: src/list.c src/container/list.h
+.cache/test.o: test/test.c test/../src/container/dynarr.h \
+ test/../src/container/iter.h test/../src/container/list.h
+.cache/dynarr.o: src/dynarr.c src/container/dynarr.h src/container/iter.h
+.cache/list.o: src/list.c src/container/list.h src/container/iter.h
 .cache/map.o: src/map.c src/container/map.h
+.cache/queue.o: src/queue.c src/container/queue.h src/container/list.h \
+ src/container/iter.h
+.cache/stack.o: src/stack.c src/container/stack.h
+.cache/tree.o: src/tree.c src/container/tree.h
 .cache/vector.o: src/vector.c src/container/vector.h

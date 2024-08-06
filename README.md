@@ -1,2 +1,2 @@
 # Container
-Generic collectionsdata structures for C language
+Generic collections data structures for C language

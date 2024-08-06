@@ -1,5 +1,11 @@
+/**
+ * @file iter.h
+ * @brief 
+ */
+
 #ifndef _ITER_H_
 #define _ITER_H_
+
 
 typedef struct iterator {
     void * (*next)(struct iterator*);
