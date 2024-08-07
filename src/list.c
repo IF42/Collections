@@ -11,16 +11,19 @@ typedef struct node {
 
 
 struct list {
-    Alloc * alloc;
+    vector vector;
 
-    size_t dtype;
     size_t size;
     node * front;
     node * back;
+
+    struct {
+        node * front;
+    }iterator;
 };
 
 
-list * list_new(Alloc * alloc, size_t dtype) {
+vector * list_new(Alloc * alloc, size_t dtype) {
     list * self = new(alloc, sizeof(list));
 
     *self = (list) {

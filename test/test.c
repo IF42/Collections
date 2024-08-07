@@ -3,13 +3,32 @@
 #include <alloc/free_list_alloc.h>
 
 #include "../src/container/dynarr.h"
-#include "../src/container/list.h"
+//#include "../src/container/list.h"
 
 
-#define TEST_SIZE 1000000
+#define TEST_SIZE 100000000
+
+void default_test(void) {
+    size_t * mem = malloc(sizeof(size_t) * TEST_SIZE);
+
+    for(size_t i = 0; i < TEST_SIZE; i++) {
+        mem[i] = i;
+    }
+
+    size_t sum = 0;
+
+    for(size_t i = 0; i < TEST_SIZE; i++) {
+        sum += mem[i];
+    }
+
+    printf("%ld\n", sum);
+
+    free(mem);
+}
 
 
 void list_test(void) {
+#if 0
     Alloc * alloc = sys_alloc_new();
     list * list = list_new(alloc, sizeof(int));
   
@@ -32,18 +51,28 @@ void list_test(void) {
     printf("empty: %s\n", list_empty(list) ? "true" : "false");
     */
     list_finalize(list);
+#endif
 }
 
 
 void dynarr_test(void) {
     Alloc * alloc = sys_alloc_new();
-    dynarr * arr = dynarr_new(alloc, sizeof(int));
+    vector * arr = dynarr_empty_new(alloc, sizeof(size_t), TEST_SIZE);
   
     for(size_t i = 0; i < TEST_SIZE; i++) {
-        dynarr_push_front(arr, &i);
+        dynarr_push_back(DYNARR(arr), &i);
     }
 
-    printf("size: %ld\n", dynarr_size(arr));
+    printf("size: %ld\n", dynarr_size(DYNARR(arr)));
+
+    printf("%ld\n", *(size_t*)dynarr_at(DYNARR(arr), 2));
+    
+    size_t i = 0;
+    foreach(num, arr) {
+        i += *(size_t*)num;
+    }
+
+    printf("%ld\n", i);
 
     /*
     dynarr_insert(arr, 20, (int[]){42});
@@ -71,14 +100,14 @@ void dynarr_test(void) {
         printf("%d\n", *(int*)num);
     }
     */
-    dynarr_finalize(arr);
+    vector_finalize(arr);
 }
 
 
 int main(void) {
     //list_test();
     dynarr_test();
-
+    //default_test();
     printf("Program exit..\n");
     return EXIT_SUCCESS;
 }

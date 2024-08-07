@@ -27,9 +27,11 @@ OUTPUT=$(CACHE)/release
 
 MODULES += vector.o
 MODULES += dynarr.o
-MODULES += queue.o
-MODULES += list.o
-MODULES += map.o
+#MODULES += queue.o
+#MODULES += cirbuff.o
+#MODULES += linbuff.o
+#MODULES += list.o
+#MODULES += map.o
 TEST += test.o
 
 

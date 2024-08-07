@@ -1,6 +1,8 @@
 .cache/test.o: test/test.c test/../src/container/dynarr.h \
- test/../src/container/iter.h test/../src/container/list.h
-.cache/dynarr.o: src/dynarr.c src/container/dynarr.h src/container/iter.h
+ test/../src/container/vector.h
+.cache/cirbuff.o: src/cirbuff.c src/container/cirbuff.h
+.cache/dynarr.o: src/dynarr.c src/container/dynarr.h src/container/vector.h
+.cache/linbuff.o: src/linbuff.c src/container/linbuff.h
 .cache/list.o: src/list.c src/container/list.h src/container/iter.h
 .cache/map.o: src/map.c src/container/map.h
 .cache/queue.o: src/queue.c src/container/queue.h src/container/list.h \

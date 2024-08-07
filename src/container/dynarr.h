@@ -8,48 +8,38 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include <alloc/alloc.h>
 
-typedef struct dynarr dynarr;
+#include "vector.h"
 
 
 /**
  * @brief
  */
-dynarr * dynarr_new(Alloc * alloc, size_t dtype);
+vector * dynarr_new(Alloc * alloc, size_t dtype);
 
 
 /** 
  * @brief
  */
-dynarr * dynarr_empty_new(Alloc * alloc, size_t dtype, size_t size);
+vector * dynarr_empty_new(Alloc * alloc, size_t dtype, size_t size);
 
 
 /*
  * @brief
  */
-dynarr * dynarr_from_array(Alloc * alloc, size_t dtype, size_t size, void * array);
+vector * dynarr_from_array(Alloc * alloc, size_t dtype, size_t size, void * array);
 
 
-#include "iter.h"
-
-/**
+/*
  * @brief
  */
-typedef struct {
-    iterator iter;
-    size_t dtype;
-    size_t size;
-    size_t capacity;
-    size_t index;
-    void * head;
-}dynarr_iter;
+typedef struct dynarr dynarr;
 
 
-/**
+/*
  * @brief
  */
-dynarr_iter dynarr_iterator(dynarr * self);
+#define DYNARR(T) ((dynarr*) (T))
 
 
 /**
@@ -104,24 +94,6 @@ bool dynarr_empty(dynarr * self);
  *  @brief
  */
 void dynarr_clear(dynarr * self);
-
-
-/**
- * @brief
- */
-void * dynarr_to_c_array(dynarr * self);
-
-
-/**
- * @brief
- */
-size_t dynarr_dtype(dynarr * self);
-
-
-/**
- * @brief
- */
-void dynarr_finalize(dynarr * self);
 
 
 #endif
