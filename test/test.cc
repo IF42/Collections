@@ -1,13 +1,14 @@
 #include <iostream>
 #include <vector>
+#include <list>
 
 #define TEST_SIZE 100000000
 
 
-void test() {
-    std::vector<size_t> vec;
+void vector_test() {
+    std::vector<int> vec(100);
 
-    for(size_t i = 0; i < TEST_SIZE; i++) {
+    for(int i = 0; i < TEST_SIZE; i++) {
         vec.push_back(i);
     }  
 
@@ -17,12 +18,29 @@ void test() {
         sum += *i;
     }
 
-    printf("%ld\n", sum);
+    std::cout << sum << std::endl;
+}
+
+void list_test() {
+    std::list<int> l;
+
+    for(int i = 0; i < TEST_SIZE; i++) {
+        l.push_back(i);
+    }  
+
+    size_t sum = 0;
+
+    for (auto i = l.begin(); i != l.end(); ++i) {
+        sum += *i;
+    }
+
+    std::cout << sum << std::endl;
 }
 
 
 int main(void) {
-    test();
+    //vector_test();
+    list_test();
     std::cout << "Program exit.." << std::endl;
     return 0;
 }

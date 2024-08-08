@@ -39,6 +39,10 @@ void * list_front(list * self);
 void * list_back(list * self);
 
 
+
+void * list_next(void * mem);
+
+
 /**
  * @brief
  */
@@ -61,24 +65,6 @@ void list_remove_front(list * self);
  * @brief
  */
 void list_remove_back(list * self);
-
-
-#include "iter.h"
-
-
-/**
- * @brief
- */
-typedef struct {
-    iterator iter;
-    void * head;
-}list_iter;
-
-
-/**
- * @brief
- */
-list_iter list_iterator(list * self);
 
 
 /**

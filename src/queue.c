@@ -2,6 +2,7 @@
 #include "container/list.h"
 
 #include <string.h>
+#include <stdint.h>
 
 
 struct queue {
@@ -35,11 +36,29 @@ void * queue_back(queue * self) {
 
 
 void * queue_pop_front(queue * self) {
+    size_t dtype = list_dtype(self->container);
     void * data = list_front(self->container);
 
     if(data != NULL) {
-        memcpy(self->pop_buffer, data, list_dtype(self->container));
+        switch(dtype) {
+            case 1:
+                *(uint8_t*)self->pop_buffer = *(uint8_t*) data;
+                break;
+            case 2:
+                *(uint16_t*)self->pop_buffer = *(uint16_t*) data;
+                break;
+            case 4:
+                *(uint32_t*)self->pop_buffer = *(uint32_t*) data;
+                break;
+            case 8:
+                *(uint64_t*)self->pop_buffer = *(uint64_t*) data;
+                break;
+            default:
+                memcpy(self->pop_buffer, data, dtype);
+        }
+
         list_remove_front(self->container);
+
         return self->pop_buffer;
     } else {
         return NULL;
@@ -48,11 +67,29 @@ void * queue_pop_front(queue * self) {
 
 
 void * queue_pop_back(queue * self) {
+    size_t dtype = list_dtype(self->container);
     void * data = list_back(self->container);
 
     if(data != NULL) {
-        memcpy(self->pop_buffer, data, list_dtype(self->container));
+        switch(dtype) {
+            case 1:
+                *(uint8_t*)self->pop_buffer = *(uint8_t*) data;
+                break;
+            case 2:
+                *(uint16_t*)self->pop_buffer = *(uint16_t*) data;
+                break;
+            case 4:
+                *(uint32_t*)self->pop_buffer = *(uint32_t*) data;
+                break;
+            case 8:
+                *(uint64_t*)self->pop_buffer = *(uint64_t*) data;
+                break;
+            default:
+                memcpy(self->pop_buffer, data, dtype);
+        }
+
         list_remove_back(self->container);
+
         return self->pop_buffer;
     } else {
         return NULL;

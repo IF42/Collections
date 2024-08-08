@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 
 typedef struct node {
@@ -11,24 +12,24 @@ typedef struct node {
 
 
 struct list {
-    vector vector;
+    Alloc * alloc;
 
+    size_t dtype;
     size_t size;
     node * front;
     node * back;
-
-    struct {
-        node * front;
-    }iterator;
+    size_t node_size;
 };
 
 
-vector * list_new(Alloc * alloc, size_t dtype) {
+
+list * list_new(Alloc * alloc, size_t dtype) {
     list * self = new(alloc, sizeof(list));
 
     *self = (list) {
         .alloc = alloc
         , .dtype = dtype
+        , .node_size = sizeof(node) + dtype
     };
 
     return self;
@@ -36,10 +37,25 @@ vector * list_new(Alloc * alloc, size_t dtype) {
 
 
 bool list_push_front(list * self, void * value) {
-    node * list_node = new(self->alloc, sizeof(node) + self->dtype);
+    node * list_node = new(self->alloc, self->node_size);
 
     if(list_node != NULL) {
-        memcpy((list_node + 1), value, self->dtype);
+        switch(self->dtype) {
+            case 1:
+                *(uint8_t*)(list_node+1) = *(uint8_t*) value;
+                break;
+            case 2:
+                *(uint16_t*) (list_node+1) = *(uint16_t*) value;
+                break;
+            case 4:
+                *(uint32_t*) (list_node+1) = *(uint32_t*) value;
+                break;
+            case 8:
+                *(uint64_t*) (list_node+1) = *(uint64_t*) value;
+                break;
+            default:
+                memcpy((list_node+1), value, self->dtype);
+        }
 
         list_node->next = self->front;
         list_node->prev = NULL;
@@ -64,10 +80,25 @@ bool list_push_front(list * self, void * value) {
 
 
 bool list_push_back(list * self, void * value) {
-    node * list_node = new(self->alloc, sizeof(node) + self->dtype);
+    node * list_node = new(self->alloc, self->node_size);
 
     if(list_node != NULL) {
-        memcpy((list_node + 1), value, self->dtype);
+        switch(self->dtype) {
+            case 1:
+                *(uint8_t*)(list_node+1) = *(uint8_t*) value;
+                break;
+            case 2:
+                *(uint16_t*) (list_node+1) = *(uint16_t*) value;
+                break;
+            case 4:
+                *(uint32_t*) (list_node+1) = *(uint32_t*) value;
+                break;
+            case 8:
+                *(uint64_t*) (list_node+1) = *(uint64_t*) value;
+                break;
+            default:
+                memcpy((list_node+1), value, self->dtype);
+        }
 
         list_node->next = NULL;
         list_node->prev = self->back;
@@ -101,6 +132,17 @@ void * list_back(list * self) {
 }
 
 
+void * list_next(void * mem) {
+    node * list_node = ((node*) mem) - 1;
+
+    if(list_node->next != NULL) {
+        return list_node->next + 1;
+    } else {
+        return NULL;
+    }
+}
+
+
 /*
  * TODO: improve searching of node on given index by starting at the nearest edge (index > size/2 ? back : front )
  */
@@ -131,25 +173,6 @@ void * list_get(list * self, size_t index) {
     } else {
         return NULL;
     }
-}
-
-
-static void * list_iterator_next(list_iter * iterator) {
-    if(iterator->head != NULL) {
-        void * data = (void*) (((node*) iterator->head) + 1); 
-        iterator->head = ((node*) iterator->head)->next;
-        return data;
-    } else {
-        return NULL;
-    }
-}
-
-
-list_iter list_iterator(list * self) {
-    return (list_iter) {
-        .iter.next = (void*(*)(iterator *)) list_iterator_next 
-        , .head = self->front
-    };
 }
 
 

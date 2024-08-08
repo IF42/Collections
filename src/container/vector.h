@@ -4,33 +4,25 @@
 #include <stddef.h>
 #include <alloc/alloc.h>
 
-
 typedef struct vector vector;
 
 
-typedef struct {
-    void * (*iter)(vector *);
-    void * (*next)(vector*);
-} vector_vtab;
+vector * vector_default_new(Alloc * alloc, size_t dtype, size_t capacity);
 
 
-struct vector {
-    Alloc * alloc;
-    size_t dtype;
-
-    vector_vtab * vtab;
-};
+vector * vector_new(Alloc * alloc, size_t dtype);
 
 
-#define vector_next(T) (T)->vtab->next((T))
+void vector_push_back(vector * self, void * value);
 
 
-#define vector_iter(T) (T)->vtab->iter((T))
+void vector_push_front(vector * self, void * value);
 
 
-#define foreach(item, iter) \
-    vector_iter(iter); \
-    for(void * item = vector_next((iter)); item != NULL; item = vector_next((iter)))
+void * vector_begin(vector * self);
+
+
+void * vector_end(vector * self);
 
 
 void vector_finalize(vector * self);
