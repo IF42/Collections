@@ -12,24 +12,36 @@ typedef struct node {
 
 
 struct list {
+    vector vector;
     Alloc * alloc;
 
     size_t dtype;
     size_t size;
     node * front;
     node * back;
-    size_t node_size;
+    node * iter;
 };
 
+
+static void * list_next(list * self) {
+    if(self->iter != NULL) {
+        void * value = self->iter + 1;
+        self->iter = self->iter->next;
+        return value;
+    } else {
+        self->iter = self->front;
+        return NULL;
+    }
+}
 
 
 list * list_new(Alloc * alloc, size_t dtype) {
     list * self = new(alloc, sizeof(list));
 
     *self = (list) {
-        .alloc = alloc
+        . vector = {.next = (void*(*)(const vector*)) list_next}
+        , .alloc = alloc
         , .dtype = dtype
-        , .node_size = sizeof(node) + dtype
     };
 
     return self;
@@ -37,7 +49,7 @@ list * list_new(Alloc * alloc, size_t dtype) {
 
 
 bool list_push_front(list * self, void * value) {
-    node * list_node = new(self->alloc, self->node_size);
+    node * list_node = new(self->alloc, sizeof(node) + self->dtype);
 
     if(list_node != NULL) {
         switch(self->dtype) {
@@ -80,7 +92,7 @@ bool list_push_front(list * self, void * value) {
 
 
 bool list_push_back(list * self, void * value) {
-    node * list_node = new(self->alloc, self->node_size);
+    node * list_node = new(self->alloc, sizeof(node) + self->dtype);
 
     if(list_node != NULL) {
         switch(self->dtype) {
@@ -111,6 +123,7 @@ bool list_push_back(list * self, void * value) {
 
         if(self->front == NULL) {
             self->front = list_node;
+            self->iter = list_node;
         }
 
         self->size++;
@@ -129,17 +142,6 @@ void * list_front(list * self) {
 
 void * list_back(list * self) {
     return self->back + 1;
-}
-
-
-void * list_next(void * mem) {
-    node * list_node = ((node*) mem) - 1;
-
-    if(list_node->next != NULL) {
-        return list_node->next + 1;
-    } else {
-        return NULL;
-    }
 }
 
 
@@ -182,20 +184,14 @@ void list_remove(list * self, size_t index) {
     if(list_node != NULL) {
         if(list_node->prev != NULL) {
             list_node->prev->next = list_node->next;
+        } else {
+            self->front = list_node->next;
+            self->iter = list_node->next;
         }
 
         if(list_node->next != NULL) {
             list_node->next->prev = list_node->prev;
-        }
-
-        /*
-         * update front and back reference
-         */
-        if(list_node == self->front) {
-            self->front = list_node->next;
-        }
-        
-        if(list_node == self->back) {
+        } else {
             self->back = list_node->prev;
         }
 

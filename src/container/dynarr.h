@@ -6,94 +6,35 @@
 #ifndef _DYNARR_H_
 #define _DYNARR_H_
 
+#include <vector/vector.h>
 #include <stdbool.h>
-#include <stddef.h>
 
-#include "vector.h"
-
-
-/**
- * @brief
- */
-vector * dynarr_new(Alloc * alloc, size_t dtype);
-
-
-/** 
- * @brief
- */
-vector * dynarr_empty_new(Alloc * alloc, size_t dtype, size_t size);
-
-
-/*
- * @brief
- */
-vector * dynarr_from_array(Alloc * alloc, size_t dtype, size_t size, void * array);
-
-
-/*
- * @brief
- */
 typedef struct dynarr dynarr;
 
 
-/*
- * @brief
- */
-#define DYNARR(T) ((dynarr*) (T))
+dynarr * dynarr_default_new(Alloc * alloc, size_t dtype, size_t capacity);
 
 
-/**
- * @brief
- */
-void * dynarr_at(dynarr * self, size_t index);
+#define dynarr_new(alloc, dtype) \
+    dynarr_default_new((alloc), (dtype), 0)
 
 
-/**
- * @brief
- */
-bool dynarr_set(dynarr * self, size_t index, void * value);
+#define dynarr_to_vector(T) ((const vector *) (T))
 
 
-/**
- * @brief
- */
-void dynarr_push_front(dynarr * self, void * value);
+bool dynarr_push_back(dynarr * self, void * value);
 
 
-/**
- * @brief
- */
-void dynarr_push_back(dynarr * self, void * value);
+bool dynarr_push_front(dynarr * self, void * value);
 
 
-/**
- * @brief
- */
-bool dynarr_insert(dynarr * self, size_t index, void * value);
+void * dynarr_begin(dynarr * self);
 
 
-/**
- * @brief
- */
-void dynarr_delete(dynarr * self, size_t index);
+void * dynarr_end(dynarr * self);
 
 
-/**
- * @brief
- */
-size_t dynarr_size(dynarr * self);
-
-
-/**
- * @brief
- */
-bool dynarr_empty(dynarr * self);
-
-
-/**
- *  @brief
- */
-void dynarr_clear(dynarr * self);
+void dynarr_finalize(dynarr * self);
 
 
 #endif

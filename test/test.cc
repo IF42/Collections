@@ -6,7 +6,7 @@
 
 
 void vector_test() {
-    std::vector<int> vec(100);
+    std::vector<int> vec(0);
 
     for(int i = 0; i < TEST_SIZE; i++) {
         vec.push_back(i);
@@ -39,8 +39,8 @@ void list_test() {
 
 
 int main(void) {
-    //vector_test();
-    list_test();
+    vector_test();
+    //list_test();
     std::cout << "Program exit.." << std::endl;
     return 0;
 }

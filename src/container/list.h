@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <alloc/alloc.h>
+#include <vector/vector.h>
 
 
 typedef struct list list;
@@ -13,6 +14,9 @@ typedef struct list list;
  * @brief
  */
 list * list_new(Alloc * alloc, size_t dtype);
+
+
+#define list_to_vector(T) ((vector*) (T))
 
 
 /**
@@ -37,10 +41,6 @@ void * list_front(list * self);
  * @brief
  */
 void * list_back(list * self);
-
-
-
-void * list_next(void * mem);
 
 
 /**

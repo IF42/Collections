@@ -25,11 +25,11 @@ TARGET=libcontainer.a
 CACHE=.cache
 OUTPUT=$(CACHE)/release
 
-MODULES += vector.o
-MODULES += queue.o
+#MODULES += queue.o
+MODULES += dynarr.o
+MODULES += list.o
 #MODULES += cirbuff.o
 #MODULES += linbuff.o
-MODULES += list.o
 #MODULES += map.o
 TEST += test.o
 
