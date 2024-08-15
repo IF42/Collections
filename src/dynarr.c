@@ -11,7 +11,7 @@ struct dynarr {
     Alloc * alloc;
     size_t dtype;
     size_t capacity;
-	size_t size;
+    size_t size;
     char * front;
 
     bool (*push_back)(dynarr*, void *);
@@ -106,7 +106,7 @@ bool dynarr_push_front(dynarr * self, void * value) {
     memcpy(self->front + self->dtype, self->front, self->size * self->dtype);
     memcpy(self->front, value, self->dtype);
 
-	self->size ++;
+    self->size ++;
 
     return true;
 }
