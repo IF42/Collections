@@ -8,7 +8,7 @@
 typedef struct node {
     struct node * next;
     struct node * prev;
-}node;
+} node;
 
 
 struct list {
@@ -23,13 +23,17 @@ struct list {
 };
 
 
+static void list_reset_iterator(list * self) {
+    self->iter = self->front;
+}
+
+
 static void * list_next(list * self) {
     if(self->iter != NULL) {
         void * value = self->iter + 1;
         self->iter = self->iter->next;
         return value;
     } else {
-        self->iter = self->front;
         return NULL;
     }
 }
@@ -39,7 +43,10 @@ list * list_new(Alloc * alloc, size_t dtype) {
     list * self = new(alloc, sizeof(list));
 
     *self = (list) {
-        . vector = {.next = (void*(*)(const vector*)) list_next}
+        . vector = {
+            .next = (void*(*)(const vector*)) list_next
+            , .reset_iterator = (void(*)(const vector*)) list_reset_iterator
+        }
         , .alloc = alloc
         , .dtype = dtype
     };
@@ -262,7 +269,13 @@ size_t list_dtype(list * self) {
 
 void list_finalize(list * self) {
     if(self != NULL) {
-        finalize(self->alloc);
+        while(self->front != self->back) {
+           node * memnode = self->front;
+           self->front = memnode->next;
+           delete(self->alloc, memnode);
+        }
+
+        delete(self->alloc, self);
     }
 }
 

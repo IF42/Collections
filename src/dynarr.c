@@ -19,11 +19,15 @@ struct dynarr {
 };
 
 
+static void dynarr_reset_iterator(dynarr * self) {
+    self->iter = 0;
+}
+
+
 static void * dynarr_next(dynarr * self) {
     if(self->iter < self->size) {
         return self->front + ((self->iter++) * self->dtype);
     } else {
-        self->iter = 0;
         return NULL;
     }
 }
@@ -34,7 +38,10 @@ dynarr * dynarr_default_new(Alloc * alloc, size_t dtype, size_t capacity) {
     char * array = capacity > 0 ? new(alloc, dtype * capacity) : NULL;
 
     *self = (dynarr) {
-        . vector = {.next = (void*(*)(const vector*)) dynarr_next}
+        . vector = {
+            .next = (void*(*)(const vector*)) dynarr_next
+            , .reset_iterator = (void(*)(const vector*)) dynarr_reset_iterator
+        }
         , .alloc = alloc
         , .dtype = dtype
         , .capacity = capacity
@@ -117,14 +124,56 @@ void * dynarr_begin(dynarr * self) {
 }
 
 
-void * dynarr_end(dynarr * self) {
+void * dynarr_back(dynarr * self) {
     return self->front + (self->size * self->dtype);
 }
 
 
+void dynarr_remove(dynarr * self, size_t index) {
+    if(self->size > 0 && index < self->size) {
+        char * ptr = self->front + (index * self->dtype);
+        memcpy(ptr, ptr+self->dtype, (self->size - index - 1) * self->dtype);
+        self->size--;
+    }
+}
+
+
+void dynarr_remove_front(dynarr * self) {
+    if(self->size > 0) {
+        memcpy(self->front, self->front + self->dtype, (self->size-1) * self->dtype);
+        self->size--;
+    }
+}
+
+
+void dynarr_remove_back(dynarr * self) {
+    if(self->size > 0) {
+        self->size --;
+    }
+}
+
+
+size_t dynarr_size(dynarr * self) {
+    return self->size;
+}
+
+
+bool dynarr_empty(dynarr * self) {
+    if(self->size == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
 void dynarr_finalize(dynarr * self) {
-    if(self->alloc != NULL) {
-        finalize(self->alloc);
+    if(self != NULL) {
+        if(self->front != NULL) {
+            delete(self->alloc, self->front);
+        }
+
+        delete(self->alloc, self);
     }
 }
 

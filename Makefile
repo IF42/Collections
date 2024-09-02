@@ -5,9 +5,6 @@ LIBS += -lthr
 LIBS +=-lalloc
 
 
-
-
-
 INCLUDE_PATH=
 LIB_PATH=
 
@@ -25,12 +22,10 @@ TARGET=libcontainer.a
 CACHE=.cache
 OUTPUT=$(CACHE)/release
 
-#MODULES += queue.o
 MODULES += dynarr.o
 MODULES += list.o
-#MODULES += cirbuff.o
-#MODULES += linbuff.o
-#MODULES += map.o
+MODULES += map.o
+
 TEST += test.o
 
 

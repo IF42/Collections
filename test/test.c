@@ -16,7 +16,6 @@
 
 
 #if defined(DEFAULT_TEST)
-
 void default_test(void) {
     size_t * mem = malloc(sizeof(size_t) * TEST_SIZE);
 
@@ -63,7 +62,11 @@ void list_test(void) {
         }
     }  
 
-    size_t sum = fold(list_to_vector(lst), num, 0, sum += *(int*) num);
+    size_t sum = 0;
+
+    foreach(list_to_vector(lst), num) {
+        sum += *(int*) num;
+    };
    
     printf("%ld\n", sum);
     list_finalize(lst);

@@ -1,3 +1,8 @@
+/**
+ * @file list.h
+ * @brief
+ */
+
 #ifndef _LIST_H_
 #define _LIST_H_ 
 
@@ -7,6 +12,9 @@
 #include <vector/vector.h>
 
 
+/**
+ * @brief
+ */
 typedef struct list list;
 
 
@@ -16,7 +24,10 @@ typedef struct list list;
 list * list_new(Alloc * alloc, size_t dtype);
 
 
-#define list_to_vector(T) ((vector*) (T))
+/**
+ * @brief
+ */
+#define list_to_vector(T) _Generic((T), list*: ((const vector*)(T)))
 
 
 /**
