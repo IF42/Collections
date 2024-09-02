@@ -1,30 +1,16 @@
-#include "container/dynarr.h"
+#include "cca/dynarr.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 
 
-struct dynarr {
-    vector vector;
-
-    Alloc * alloc;
-    size_t dtype;
-    size_t capacity;
-    size_t size;
-    char * front;
-
-    bool (*push_back)(dynarr*, void *);
-    size_t iter;
-};
-
-
-static void dynarr_reset_iterator(dynarr * self) {
+static void dynarr_reset_iterator(DynArr * self) {
     self->iter = 0;
 }
 
 
-static void * dynarr_next(dynarr * self) {
+static void * dynarr_next(DynArr * self) {
     if(self->iter < self->size) {
         return self->front + ((self->iter++) * self->dtype);
     } else {
@@ -33,11 +19,8 @@ static void * dynarr_next(dynarr * self) {
 }
 
 
-dynarr * dynarr_default_new(Alloc * alloc, size_t dtype, size_t capacity) {
-    dynarr * self = new(alloc, sizeof(dynarr));
-    char * array = capacity > 0 ? new(alloc, dtype * capacity) : NULL;
-
-    *self = (dynarr) {
+DynArr dynarr_default(Alloc * alloc, size_t dtype, size_t capacity) {
+    return (DynArr) {
         . vector = {
             .next = (void*(*)(const vector*)) dynarr_next
             , .reset_iterator = (void(*)(const vector*)) dynarr_reset_iterator
@@ -45,14 +28,12 @@ dynarr * dynarr_default_new(Alloc * alloc, size_t dtype, size_t capacity) {
         , .alloc = alloc
         , .dtype = dtype
         , .capacity = capacity
-        , .front = array
+        , .front = capacity > 0 ? new(alloc, dtype * capacity) : NULL
     };
-
-    return self;
 }
 
 
-static inline bool dynarr_realloc(dynarr * self) {
+static inline bool dynarr_realloc(DynArr * self) {
     size_t capacity = (self->capacity * 2) + 1;
     char * array = new(self->alloc, capacity * self->dtype);
 
@@ -73,7 +54,7 @@ static inline bool dynarr_realloc(dynarr * self) {
 }
 
 
-bool dynarr_push_back(dynarr * self, void * value) {
+bool dynarr_push_back(DynArr * self, void * value) {
     if(self->size >= self->capacity) {
         if(dynarr_realloc(self) == false) {
             return false;
@@ -103,7 +84,7 @@ bool dynarr_push_back(dynarr * self, void * value) {
 }
 
 
-bool dynarr_push_front(dynarr * self, void * value) {
+bool dynarr_push_front(DynArr * self, void * value) {
     if(self->size >= self->capacity) {
         if(dynarr_realloc(self) == false) {
             return false;
@@ -119,17 +100,17 @@ bool dynarr_push_front(dynarr * self, void * value) {
 }
 
 
-void * dynarr_begin(dynarr * self) {
+void * dynarr_begin(DynArr * self) {
     return self->front;
 }
 
 
-void * dynarr_back(dynarr * self) {
+void * dynarr_back(DynArr * self) {
     return self->front + (self->size * self->dtype);
 }
 
 
-void dynarr_remove(dynarr * self, size_t index) {
+void dynarr_remove(DynArr * self, size_t index) {
     if(self->size > 0 && index < self->size) {
         char * ptr = self->front + (index * self->dtype);
         memcpy(ptr, ptr+self->dtype, (self->size - index - 1) * self->dtype);
@@ -138,7 +119,7 @@ void dynarr_remove(dynarr * self, size_t index) {
 }
 
 
-void dynarr_remove_front(dynarr * self) {
+void dynarr_remove_front(DynArr * self) {
     if(self->size > 0) {
         memcpy(self->front, self->front + self->dtype, (self->size-1) * self->dtype);
         self->size--;
@@ -146,19 +127,19 @@ void dynarr_remove_front(dynarr * self) {
 }
 
 
-void dynarr_remove_back(dynarr * self) {
+void dynarr_remove_back(DynArr * self) {
     if(self->size > 0) {
         self->size --;
     }
 }
 
 
-size_t dynarr_size(dynarr * self) {
+size_t dynarr_size(DynArr * self) {
     return self->size;
 }
 
 
-bool dynarr_empty(dynarr * self) {
+bool dynarr_empty(DynArr * self) {
     if(self->size == 0) {
         return true;
     } else {
@@ -167,13 +148,9 @@ bool dynarr_empty(dynarr * self) {
 }
 
 
-void dynarr_finalize(dynarr * self) {
-    if(self != NULL) {
-        if(self->front != NULL) {
-            delete(self->alloc, self->front);
-        }
-
-        delete(self->alloc, self);
+void dynarr_finalize(DynArr * self) {
+    if(self->front != NULL) {
+        delete(self->alloc, self->front);
     }
 }
 

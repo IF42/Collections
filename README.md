@@ -1,7 +1,10 @@
-# Container
-Generic collections data structures for C language
+# CCA
+Comprehensive Collections and Algorithsm library
 
 
 # TODO
 * unit tests
-* binary tree
+* tree
+* hash map
+* hash algorithms
+* sorting algorithms

@@ -3,16 +3,27 @@
 #include <alloc/free_list_alloc.h>
 #include <alloc/sys_alloc.h>
 
-#include "../src/container/dynarr.h"
-#include "../src/container/list.h"
+#include "../src/cca/dynarr.h"
+#include "../src/cca/list.h"
 
 
 //#define DEFAULT_TEST
-//#define DYNARR_TEST
-#define LIST_TEST 
+#define DYNARR_TEST
+//#define LIST_TEST 
 
 
 #define TEST_SIZE 100000000
+
+
+size_t vector_sum(const vector * vec) {
+    size_t sum = 0;
+
+    foreach(vec, num) {
+        sum += *(int*) num;
+    };
+
+    return sum;
+}
 
 
 #if defined(DEFAULT_TEST)
@@ -34,42 +45,38 @@ void default_test(void) {
     free(mem);
 }
 #elif defined(DYNARR_TEST) 
-void dynar_test(void) {
+void dynarr_test(void) {
     Alloc * alloc = sys_alloc_new();
-    dynarr * arr = dynarr_default_new(alloc, sizeof(int), 100);
+    DynArr arr = dynarr_default(alloc, sizeof(int), 100);
     
     for(int i = 0; i < TEST_SIZE; i++) {
-        if(dynarr_push_back(arr, &i) == false) {
+        if(dynarr_push_back(&arr, &i) == false) {
             printf("alloc error %d\n", i);
             return;
         }
     }  
 
-    size_t sum = fold(dynarr_to_vector(arr), num, 0, sum += *(int*) num);
-   
+    size_t sum = vector_sum(dynarr_to_vector(&arr));
+
     printf("%ld\n", sum);
-    dynarr_finalize(arr);
+    dynarr_finalize(&arr);
 }
 #elif defined(LIST_TEST)
 void list_test(void) {
     Alloc * alloc = stack_alloc_new(((size_t)TEST_SIZE)*21); //sys_alloc_new();
-    list * lst = list_new(alloc, sizeof(int));
+    List lst = list(alloc, sizeof(int));
     
     for(int i = 0; i < TEST_SIZE; i++) {
-        if(list_push_back(lst, &i) == false) {
+        if(list_push_back(&lst, &i) == false) {
             printf("alloc error %d\n", i);
             return;
         }
     }  
 
-    size_t sum = 0;
+    size_t sum = vector_sum(list_to_vector(&lst));
 
-    foreach(list_to_vector(lst), num) {
-        sum += *(int*) num;
-    };
-   
     printf("%ld\n", sum);
-    list_finalize(lst);
+    list_finalize(&lst);
 }
 #endif
 

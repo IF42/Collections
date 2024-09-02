@@ -11,22 +11,28 @@
 #include <vector/vector.h>
 
 
-typedef struct map map;
+typedef struct {
+    vector vector;
+    Alloc * alloc;
+
+    size_t dtype;
+    size_t size;
+} Map;
 
 
 #define map_to_vector(T) _Generic((T), map*: ((const vector*)(T)))
 
 
-map * map_new(Alloc * alloc, size_t memsize);
+Map map(Alloc * alloc, size_t dtype);
 
 
-size_t map_size(map * self);
+size_t map_size(Map * self);
 
 
-bool map_empty(map * self);
+bool map_empty(Map * self);
 
 
-void map_finalize(map * self);
+void map_finalize(Map * self);
 
 
 #endif

@@ -1,34 +1,16 @@
-#include "container/list.h"
+#include "cca/list.h"
 
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 
 
-typedef struct node {
-    struct node * next;
-    struct node * prev;
-} node;
-
-
-struct list {
-    vector vector;
-    Alloc * alloc;
-
-    size_t dtype;
-    size_t size;
-    node * front;
-    node * back;
-    node * iter;
-};
-
-
-static void list_reset_iterator(list * self) {
+static void list_reset_iterator(List * self) {
     self->iter = self->front;
 }
 
 
-static void * list_next(list * self) {
+static void * list_next(List * self) {
     if(self->iter != NULL) {
         void * value = self->iter + 1;
         self->iter = self->iter->next;
@@ -39,54 +21,50 @@ static void * list_next(list * self) {
 }
 
 
-list * list_new(Alloc * alloc, size_t dtype) {
-    list * self = new(alloc, sizeof(list));
-
-    *self = (list) {
-        . vector = {
+List list(Alloc * alloc, size_t dtype) {
+    return (List) {
+        .vector = {
             .next = (void*(*)(const vector*)) list_next
             , .reset_iterator = (void(*)(const vector*)) list_reset_iterator
         }
         , .alloc = alloc
         , .dtype = dtype
     };
-
-    return self;
 }
 
 
-bool list_push_front(list * self, void * value) {
-    node * list_node = new(self->alloc, sizeof(node) + self->dtype);
+bool list_push_front(List * self, void * value) {
+    Node * node = new(self->alloc, sizeof(Node) + self->dtype);
 
-    if(list_node != NULL) {
+    if(node != NULL) {
         switch(self->dtype) {
             case 1:
-                *(uint8_t*)(list_node+1) = *(uint8_t*) value;
+                *(uint8_t*)(node+1) = *(uint8_t*) value;
                 break;
             case 2:
-                *(uint16_t*) (list_node+1) = *(uint16_t*) value;
+                *(uint16_t*) (node+1) = *(uint16_t*) value;
                 break;
             case 4:
-                *(uint32_t*) (list_node+1) = *(uint32_t*) value;
+                *(uint32_t*) (node+1) = *(uint32_t*) value;
                 break;
             case 8:
-                *(uint64_t*) (list_node+1) = *(uint64_t*) value;
+                *(uint64_t*) (node+1) = *(uint64_t*) value;
                 break;
             default:
-                memcpy((list_node+1), value, self->dtype);
+                memcpy((node+1), value, self->dtype);
         }
 
-        list_node->next = self->front;
-        list_node->prev = NULL;
+        node->next = self->front;
+        node->prev = NULL;
 
         if(self->front != NULL) {
-            self->front->prev = list_node;
+            self->front->prev = node;
         }
 
-        self->front = list_node;
+        self->front = node;
 
         if(self->back == NULL) {
-            self->back = list_node;
+            self->back = node;
         }   
 
         self->size++;
@@ -98,39 +76,39 @@ bool list_push_front(list * self, void * value) {
 }
 
 
-bool list_push_back(list * self, void * value) {
-    node * list_node = new(self->alloc, sizeof(node) + self->dtype);
+bool list_push_back(List * self, void * value) {
+    Node * node = new(self->alloc, sizeof(Node) + self->dtype);
 
-    if(list_node != NULL) {
+    if(node != NULL) {
         switch(self->dtype) {
             case 1:
-                *(uint8_t*)(list_node+1) = *(uint8_t*) value;
+                *(uint8_t*)(node+1) = *(uint8_t*) value;
                 break;
             case 2:
-                *(uint16_t*) (list_node+1) = *(uint16_t*) value;
+                *(uint16_t*) (node+1) = *(uint16_t*) value;
                 break;
             case 4:
-                *(uint32_t*) (list_node+1) = *(uint32_t*) value;
+                *(uint32_t*) (node+1) = *(uint32_t*) value;
                 break;
             case 8:
-                *(uint64_t*) (list_node+1) = *(uint64_t*) value;
+                *(uint64_t*) (node+1) = *(uint64_t*) value;
                 break;
             default:
-                memcpy((list_node+1), value, self->dtype);
+                memcpy((node+1), value, self->dtype);
         }
 
-        list_node->next = NULL;
-        list_node->prev = self->back;
+        node->next = NULL;
+        node->prev = self->back;
 
         if(self->back != NULL) {
-            self->back->next= list_node;
+            self->back->next= node;
         }
 
-        self->back = list_node;
+        self->back = node;
 
         if(self->front == NULL) {
-            self->front = list_node;
-            self->iter = list_node;
+            self->front = node;
+            self->iter = node;
         }
 
         self->size++;
@@ -142,12 +120,12 @@ bool list_push_back(list * self, void * value) {
 }
 
 
-void * list_front(list * self) {
+void * list_front(List * self) {
     return self->front + 1;
 }
 
 
-void * list_back(list * self) {
+void * list_back(List * self) {
     return self->back + 1;
 }
 
@@ -155,74 +133,74 @@ void * list_back(list * self) {
 /*
  * TODO: improve searching of node on given index by starting at the nearest edge (index > size/2 ? back : front )
  */
-static node * list_find_node(list * self, size_t index) {
+static Node * list_find_node(List * self, size_t index) {
     if(index < self->size) {
-        node * list_node = self->front;
+        Node * node = self->front;
 
         for(size_t i = 0; i < index; i++) {
-            if(list_node != NULL) {
-                list_node = list_node->next;
+            if(node != NULL) {
+                node = node->next;
             } else {
                 return NULL;
             }
         }
 
-        return list_node;
+        return node;
     } else {
         return NULL;
     }
 }
 
 
-void * list_get(list * self, size_t index) {
-    node * list_node = list_find_node(self, index);
+void * list_get(List * self, size_t index) {
+    Node * node = list_find_node(self, index);
 
-    if(list_node != NULL) {
-        return list_node + 1;
+    if(node != NULL) {
+        return node + 1;
     } else {
         return NULL;
     }
 }
 
 
-void list_remove(list * self, size_t index) {
-    node * list_node = list_find_node(self, index);
+void list_remove(List * self, size_t index) {
+    Node * node = list_find_node(self, index);
 
-    if(list_node != NULL) {
-        if(list_node->prev != NULL) {
-            list_node->prev->next = list_node->next;
+    if(node != NULL) {
+        if(node->prev != NULL) {
+            node->prev->next = node->next;
         } else {
-            self->front = list_node->next;
-            self->iter = list_node->next;
+            self->front = node->next;
+            self->iter = node->next;
         }
 
-        if(list_node->next != NULL) {
-            list_node->next->prev = list_node->prev;
+        if(node->next != NULL) {
+            node->next->prev = node->prev;
         } else {
-            self->back = list_node->prev;
+            self->back = node->prev;
         }
 
         /*
          * delete memory
          */
-        delete(self->alloc, list_node);
+        delete(self->alloc, node);
 
         self->size --;
     } 
 }
 
 
-void list_remove_front(list * self) {
+void list_remove_front(List * self) {
     if(self->front != NULL) {
         if(self->front == self->back) {
             delete(self->alloc, self->front);
             self->front = NULL;
             self->back = NULL;
         } else {
-            node * list_node = self->front;
-            self->front = list_node->next;
+            Node * node = self->front;
+            self->front = node->next;
             self->front->prev = NULL;
-            delete(self->alloc, list_node);
+            delete(self->alloc, node);
         }
 
         self->size --;
@@ -230,17 +208,17 @@ void list_remove_front(list * self) {
 }
 
 
-void list_remove_back(list * self) {
+void list_remove_back(List * self) {
     if(self->back != NULL) {
         if(self->back == self->front) {
             delete(self->alloc, self->front);
             self->front = NULL;
             self->back = NULL;
         } else {
-            node * list_node = self->back;
-            self->back = list_node->prev;
+            Node * node = self->back;
+            self->back = node->prev;
             self->back->next = NULL;
-            delete(self->alloc, list_node);
+            delete(self->alloc, node);
         }
 
         self->size --;
@@ -248,7 +226,7 @@ void list_remove_back(list * self) {
 }
 
 
-bool list_empty(list * self) {
+bool list_empty(List * self) {
     if(self->size == 0) {
         return true;
     } else {
@@ -257,25 +235,23 @@ bool list_empty(list * self) {
 }
 
 
-size_t list_size(list * self) {
+size_t list_size(List * self) {
     return self->size;
 }
 
 
-size_t list_dtype(list * self) {
+size_t list_dtype(List * self) {
     return self->dtype;
 }
 
 
-void list_finalize(list * self) {
-    if(self != NULL) {
+void list_finalize(List * self) {
+    if(self->alloc != NULL) {
         while(self->front != self->back) {
-           node * memnode = self->front;
+           Node * memnode = self->front;
            self->front = memnode->next;
            delete(self->alloc, memnode);
         }
-
-        delete(self->alloc, self);
     }
 }
 
